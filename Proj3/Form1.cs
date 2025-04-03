@@ -1,10 +1,11 @@
 using System.Data;
+using System.Text.Json;
+using System.Xml.Serialization;
 
 namespace Proj3
 {
     public partial class Form1 : Form
     {
-        GridViewData Grid;
         private int ID = 1;
         public Form1()
         {
@@ -16,13 +17,47 @@ namespace Proj3
             dataGridView1.Columns.Add("Wiek", "Wiek");
             dataGridView1.Columns.Add("Stanowisko", "Stanowisko");
         }
+
+        private List<Osoba> ConvertToList()
+        {
+            List<Osoba> listaOsob = new List<Osoba>();
+
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                if (!row.IsNewRow)
+                {
+                    listaOsob.Add(new Osoba(Convert.ToInt32(row.Cells["ID"].Value), row.Cells["Imie"].Value.ToString(), row.Cells["Nazwisko"].Value.ToString(), Convert.ToInt32(row.Cells["Wiek"].Value), row.Cells["Stanowisko"].Value.ToString()));
+                }
+            }
+            return listaOsob;
+        }
+
+        private void SerializeJson(string filepath)
+        {
+            try
+            {
+                List<Osoba> ListaOsob = ConvertToList();
+                string Json = JsonSerializer.Serialize(ListaOsob, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(filepath, Json);
+                MessageBox.Show("All data saved successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error!" + ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }   
+        }
+
+        private void SerilizeXml(string filepath)
+        {
+
+        }
         public void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
         }
         public void AddRowToGrid(string imie, string nazwisko, int wiek, string stanowisko)
         {
-            dataGridView1.Rows.Add(ID , imie, nazwisko, wiek, stanowisko);
+            dataGridView1.Rows.Add(ID, imie, nazwisko, wiek, stanowisko);
             ID++;
         }
 
@@ -50,26 +85,26 @@ namespace Proj3
         {
             string csvContent = "ID,IMIE,NAZWISKO,WIEK,STANOWISKO" + Environment.NewLine;
 
-            foreach(DataGridViewRow row in dataGrid.Rows)
+            foreach (DataGridViewRow row in dataGrid.Rows)
             {
                 if (!row.IsNewRow)
                 {
                     csvContent += string.Join(",", Array.ConvertAll(row.Cells.Cast<DataGridViewCell>().ToArray(), c => c.Value)) + Environment.NewLine;
                 }
             }
-            File.WriteAllText(filename, csvContent); 
+            File.WriteAllText(filename, csvContent);
         }
 
         private void LoadCSVToDataGridView(string filePath)
         {
             if (!File.Exists(filePath))
             {
-                MessageBox.Show("PLIK CSV NIE ISTNIEJE!","B³¹d",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                MessageBox.Show("PLIK CSV NIE ISTNIEJE!", "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             string[] lines = File.ReadAllLines(filePath);
 
-            if(lines.Length < 2)
+            if (lines.Length < 2)
             {
                 MessageBox.Show("NOT ENOUGHT DATA", "B£¥D", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -78,12 +113,12 @@ namespace Proj3
             dataGridView1.Rows.Clear();
             dataGridView1.Columns.Clear();
 
-            string[] headers = lines[0].Split(',',StringSplitOptions.TrimEntries);
+            string[] headers = lines[0].Split(',', StringSplitOptions.TrimEntries);
             foreach (string header in headers)
             {
-                dataGridView1.Columns.Add(header.Trim(),header.Trim());
+                dataGridView1.Columns.Add(header.Trim(), header.Trim());
             }
-            for(int i = 1; i<lines.Length; i++)
+            for (int i = 1; i < lines.Length; i++)
             {
                 string[] values = lines[i].Split(",");
 
@@ -105,7 +140,7 @@ namespace Proj3
             saveFileDialog1.Title = "Wybierz lokalizacjê zapisu Pliku CSV";
             saveFileDialog1.ShowDialog();
 
-            if(saveFileDialog1.FileName != "")
+            if (saveFileDialog1.FileName != "")
             {
                 ExportToCSV(dataGridView1, saveFileDialog1.FileName);
             }
@@ -118,9 +153,23 @@ namespace Proj3
             openFileDialog1.Title = "Wybierz Plik CSV do Wczytania";
             openFileDialog1.ShowDialog();
 
-            if(openFileDialog1.FileName != "")
+            if (openFileDialog1.FileName != "")
             {
                 LoadCSVToDataGridView(openFileDialog1.FileName);
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
+            saveFileDialog1.Filter = "Pliki JSON (*.json)|*.json|Wszystkie pliki (*.*)|*.*";
+            saveFileDialog1.Title = "Wybierz lokalizacjê zapisu Pliku JSON";
+            saveFileDialog1.ShowDialog();
+
+            if(saveFileDialog1.FileName != "")
+            {
+                SerializeJson(saveFileDialog1.FileName);
             }
         }
     }
