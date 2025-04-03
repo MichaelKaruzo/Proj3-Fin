@@ -6,11 +6,23 @@ using System.Threading.Tasks;
 
 namespace Proj3
 {
-    public class GridViewData
+    public class Osoba
     {
-        public string Imie {  get; set; }
+        public int ID { get; set; }
+        public string Imie { get; set; }
         public string Nazwisko { get; set; }
-        public int Wiek {  get; set; }
+        public int Wiek { get; set; }
         public string Stanowisko { get; set; }
+
+        public Osoba() { }
+
+        public Osoba(int id, string imie, string nazwisko, int wiek, string stanowisko)
+        {
+            ID = id;
+            Imie = imie;
+            Nazwisko = nazwisko;
+            Wiek = wiek;
+            Stanowisko = stanowisko;
+        }
     }
 }
