@@ -44,12 +44,26 @@ namespace Proj3
             catch (Exception ex)
             {
                 MessageBox.Show("Error!" + ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }   
+            }
         }
 
         private void SerilizeXml(string filepath)
         {
-
+            try
+            {
+                List<Osoba> ListaOsob = ConvertToList();
+                XmlSerializer SerilizerXML = new XmlSerializer(typeof(List<Osoba>));
+                using (TextWriter writer = new StreamWriter(filepath))
+                {
+                    SerilizerXML.Serialize(writer,ListaOsob);
+                }
+                Console.WriteLine("All data saved successfully to XML!");
+                MessageBox.Show("All data saved successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error!" + ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         public void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -167,9 +181,23 @@ namespace Proj3
             saveFileDialog1.Title = "Wybierz lokalizacjê zapisu Pliku JSON";
             saveFileDialog1.ShowDialog();
 
-            if(saveFileDialog1.FileName != "")
+            if (saveFileDialog1.FileName != "")
             {
                 SerializeJson(saveFileDialog1.FileName);
+            }
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
+            saveFileDialog1.Filter = "Pliki XML (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*";
+            saveFileDialog1.Title = "Wybierz lokalizacjê zapisu Pliku XML";
+            saveFileDialog1.ShowDialog();
+
+            if(saveFileDialog1.FileName != "")
+            {
+                SerilizeXml(saveFileDialog1.FileName);
             }
         }
     }
